@@ -84,10 +84,17 @@ KWin.TabBoxSwitcher {
                     PlasmaComponents3.Label {
                         id: textItem
                         width: parent.width - Kirigami.Units.smallSpacing*2
-                        text: {
-                            var program = (model.caption).split('—')[1]
-                            return (program) ? program : (model.caption).split('-').pop()
-                        }
+                      text: {
+    var parts = (model.caption).split('—');
+    var documentTitle = parts[0].trim();
+    var programName = parts[1] ? parts[1].trim() : (model.caption).split('-').pop().trim();
+
+    if (documentTitle && documentTitle.length > 3) {
+        return documentTitle;
+    }
+
+    return programName;
+}
                         height: paintedHeight
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
