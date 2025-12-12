@@ -1,11 +1,11 @@
 /*
- KWin - the KDE window manager
- This file is part of the KDE project.
+KWin - the KDE window manager
+This file is part of the KDE project.
 
- SPDX-FileCopyrightText: 2011 Martin Gräßlin <mgraesslin@kde.org>
+SPDX-FileCopyrightText: 2011 Martin Gräßlin <mgraesslin@kde.org>
 
- SPDX-License-Identifier: GPL-2.0-or-later
- */
+SPDX-License-Identifier: GPL-2.0-or-later
+*/
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
 import org.kde.plasma.core as PlasmaCore
@@ -36,111 +36,115 @@ KWin.TabBoxSwitcher {
                 id: icons
 
                 readonly property int iconSize: Kirigami.Units.iconSizes.huge * 1.5
-                readonly property int delegateWidth: iconSize +  Kirigami.Units.largeSpacing * 4
-                readonly property int delegateHeight: iconSize + Kirigami.Units.largeSpacing * 4
+                    readonly property int delegateWidth: iconSize + Kirigami.Units.largeSpacing * 4
+                        readonly property int delegateHeight: iconSize + Kirigami.Units.largeSpacing * 4
 
-                Layout.alignment: Qt.AlignHCenter
-                Layout.maximumWidth: tabBox.screenGeometry.width * 0.9
+                            Layout.alignment: Qt.AlignHCenter
+                            Layout.maximumWidth: tabBox.screenGeometry.width * 0.9
 
-                implicitWidth: contentWidth
-                implicitHeight: delegateWidth
+                            implicitWidth: contentWidth
+                            implicitHeight: delegateWidth
 
-                focus: true
-                orientation: ListView.Horizontal
+                            focus: true
+                            orientation: ListView.Horizontal
 
-                model: tabBox.model
-                delegate: Item{
+                            model: tabBox.model
+                            delegate: Item {
 
-                    width: icons.delegateHeight
-                    height: icons.delegateWidth
+                                width: icons.delegateHeight
+                                height: icons.delegateWidth
 
-                    Kirigami.Icon {
-                        property string caption: model.caption
+                                Kirigami.Icon {
+                                    property string caption: model.caption
 
-                        anchors{
-                            horizontalCenter: parent.horizontalCenter
-                            top: parent.top
-                            topMargin: Kirigami.Units.smallSpacing * 2
-                        }
+                                        anchors {
+                                            horizontalCenter: parent.horizontalCenter
+                                            top: parent.top
+                                            topMargin: Kirigami.Units.smallSpacing * 2
+                                        }
 
-                        width:  icons.iconSize // delegateHeight
-                        height: icons.iconSize // delegateWidth
+                                        width:  icons.iconSize // delegateHeight
+                                        height: icons.iconSize // delegateWidth
 
-                        source: model.icon
-                        // active: index == icons.currentIndex
+                                        source: model.icon
+                                        // active: index == icons.currentIndex
 
-                        TapHandler {
-                            onSingleTapped: {
-                                if (index === icons.currentIndex) {
-                                    icons.model.activate(index);
-                                    return;
+                                        TapHandler {
+                                            onSingleTapped: {
+                                                if (index === icons.currentIndex)
+                                                {
+                                                    icons.model.activate(index);
+                                                    return;
+                                                }
+                                                icons.currentIndex = index;
+                                            }
+                                            onDoubleTapped: icons.model.activate(index)
+                                        }
+                                    }
+
+                                    PlasmaComponents3.Label {
+                                        id: textItem
+                                        width: parent.width - Kirigami.Units.smallSpacing*2
+                                        text: {
+                                            var parts = (model.caption).split('—');
+                                            var documentTitle = parts[0].trim();
+                                            var programName = parts[1] ? parts[1].trim() : (model.caption).split('-').pop().trim();
+
+                                            if (documentTitle && documentTitle.length > 3)
+                                            {
+                                                return documentTitle;
+                                            }
+
+                                            return programName;
+                                        }
+                                        height: paintedHeight
+                                        horizontalAlignment: Text.AlignHCenter
+                                        verticalAlignment: Text.AlignVCenter
+                                        elide: Text.ElideRight
+                                        font.weight: icons.currentIndex === index ? Font.Bold : Font.Normal
+                                        anchors {
+                                            horizontalCenter: parent.horizontalCenter
+                                            bottom: parent.bottom
+                                            bottomMargin: Kirigami.Units.smallSpacing
+                                        }
+                                    }
+
                                 }
-                                icons.currentIndex = index;
+
+                                highlight: KSvg.FrameSvgItem {
+                                    id: highlightItem
+                                    imagePath: "widgets/viewitem"
+                                    prefix: "hover"
+                                    width: icons.iconSize + margins.left + margins.right
+                                    height: icons.iconSize + margins.top + margins.bottom
+                                }
+
+                                highlightMoveDuration: 0
+                                highlightResizeDuration: 0
+                                boundsBehavior: Flickable.StopAtBounds
                             }
-                            onDoubleTapped: icons.model.activate(index)
-                        }
-                    }
 
-                    PlasmaComponents3.Label {
-                        id: textItem
-                        width: parent.width - Kirigami.Units.smallSpacing*2
-                      text: {
-    var parts = (model.caption).split('—');
-    var documentTitle = parts[0].trim();
-    var programName = parts[1] ? parts[1].trim() : (model.caption).split('-').pop().trim();
-
-    if (documentTitle && documentTitle.length > 3) {
-        return documentTitle;
-    }
-
-    return programName;
-}
-                        height: paintedHeight
-                        horizontalAlignment: Text.AlignHCenter
-                        verticalAlignment: Text.AlignVCenter
-                        elide: Text.ElideRight
-                        font.weight: icons.currentIndex === index ? Font.Bold : Font.Normal
-                        anchors{
-                            horizontalCenter: parent.horizontalCenter
-                            bottom: parent.bottom
-                            bottomMargin: Kirigami.Units.smallSpacing
-                        }
-                    }
-
-                }
-
-                highlight: KSvg.FrameSvgItem {
-                    id: highlightItem
-                    imagePath: "widgets/viewitem"
-                    prefix: "hover"
-                    width: icons.iconSize + margins.left + margins.right
-                    height: icons.iconSize + margins.top + margins.bottom
-                }
-
-                highlightMoveDuration: 0
-                highlightResizeDuration: 0
-                boundsBehavior: Flickable.StopAtBounds
-            }
-
-            Connections {
-                target: tabBox
-                function onCurrentIndexChanged() {
-                    icons.currentIndex = tabBox.currentIndex;
-                }
-            }
-
-            /*
-            * Key navigation on outer item for two reasons:
-            * @li we have to emit the change signal
-            * @li on multiple invocation it does not work on the list view. Focus seems to be lost.
-            **/
-            Keys.onPressed: event => {
-                                if (event.key == Qt.Key_Left) {
-                                    icons.decrementCurrentIndex();
-                                } else if (event.key == Qt.Key_Right) {
-                                    icons.incrementCurrentIndex();
+                            Connections {
+                                target: tabBox
+                                function onCurrentIndexChanged()
+                                {
+                                    icons.currentIndex = tabBox.currentIndex;
                                 }
                             }
+
+                            /*
+                            * Key navigation on outer item for two reasons:
+                            * @li we have to emit the change signal
+                            * @li on multiple invocation it does not work on the list view. Focus seems to be lost.
+                            **/
+                            Keys.onPressed: event => {
+                            if (event.key == Qt.Key_Left)
+                            {
+                                icons.decrementCurrentIndex();
+                            } else if (event.key == Qt.Key_Right) {
+                            icons.incrementCurrentIndex();
+                        }
+                    }
+                }
+            }
         }
-    }
-}
